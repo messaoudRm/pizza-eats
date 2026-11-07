@@ -1,10 +1,22 @@
 import { Pizza } from "./Pizza";
 
+export type OpeningInterval = {
+    open: string;
+    close: string;
+};
+
+export type OpeningHours = {
+    [day: number]: OpeningInterval[];
+};
+
+
 export abstract class Brand {
   constructor(
     public readonly id: string,
     public readonly name: string,
     protected readonly menu: Pizza[],
+    public readonly deliveryArrondissements: number[],
+    public readonly openingHours: OpeningHours,
   ) {}
 
   getMenu(): Pizza[] {

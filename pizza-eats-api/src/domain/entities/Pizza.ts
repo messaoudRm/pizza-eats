@@ -4,5 +4,6 @@ export class Pizza {
     public readonly name: string,
     public readonly description: string,
     public readonly basePrice: number,
+    public readonly stock: number,
   ) {}
 }
