@@ -16,4 +16,9 @@ export abstract class Brand {
   }
 
   abstract calculatePrice(pizza: Pizza): number;
+
+  getPizzaById(pizzaId: string): Pizza | undefined {
+      return this.menu.find((pizza) => pizza.id === pizzaId);
+  }
+
 }
