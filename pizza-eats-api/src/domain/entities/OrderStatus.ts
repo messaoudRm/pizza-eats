@@ -1,0 +1,6 @@
+export enum OrderStatus {
+    CONFIRMED = "CONFIRMED",
+    PREPARING = "PREPARING",
+    OUT_FOR_DELIVERY = "OUT_FOR_DELIVERY",
+    DELIVERED = "DELIVERED",
+}
