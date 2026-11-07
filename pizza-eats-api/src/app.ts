@@ -1,8 +1,10 @@
 import Fastify from "fastify";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
+import "./domain/brands/registerBrands";
 
 import { healthRoutes } from "./presentation/routes/health.routes";
+import { brandRoutes } from "./presentation/routes/brand.routes";
 
 export async function buildApp() {
     const app = Fastify({
@@ -27,6 +29,7 @@ export async function buildApp() {
 
     // Enregistrement des routes
     await app.register(healthRoutes);
+    await app.register(brandRoutes);
 
     return app;
 }
