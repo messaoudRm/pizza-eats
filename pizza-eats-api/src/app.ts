@@ -9,6 +9,7 @@ import { pricingRoutes } from "./presentation/routes/pricing.routes";
 import { orderRoutes } from "./presentation/routes/order.routes";
 import { paymentRoutes } from "./presentation/routes/payment.routes";
 import { orderNotificationRoutes } from "./presentation/routes/order-notification.routes";
+import { cartRoutes } from "./presentation/routes/cart.routes";
 
 export async function buildApp() {
     const app = Fastify({
@@ -38,6 +39,7 @@ export async function buildApp() {
     await app.register(orderRoutes);
     await app.register(paymentRoutes);
     await app.register(orderNotificationRoutes);
+    await app.register(cartRoutes);
 
     return app;
 }

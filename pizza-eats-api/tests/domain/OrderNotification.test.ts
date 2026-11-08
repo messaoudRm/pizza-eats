@@ -32,6 +32,7 @@ describe("Order notifications - Observer pattern", () => {
         process.env.EMAILJS_SERVICE_ID = "service_test";
         process.env.EMAILJS_TEMPLATE_ID = "template_test";
         process.env.EMAILJS_PUBLIC_KEY = "public_test";
+        process.env.EMAILJS_PRIVATE_KEY = "private_test";
 
         vi.clearAllMocks();
     });
@@ -55,7 +56,10 @@ describe("Order notifications - Observer pattern", () => {
                 order_id: "order-1",
                 order_status: OrderStatus.PREPARING,
             },
-            { publicKey: "public_test" },
+            {
+                publicKey: "public_test",
+                privateKey: "private_test",
+            },
         );
     });
 
@@ -148,7 +152,10 @@ describe("Order notifications - Observer pattern", () => {
                 order_id: "order-1",
                 order_status: OrderStatus.PREPARING,
             },
-            { publicKey: "public_test" },
+            {
+                publicKey: "public_test",
+                privateKey: "private_test",
+            },
         );
 
         expect(emailjs.send).toHaveBeenNthCalledWith(
@@ -160,7 +167,10 @@ describe("Order notifications - Observer pattern", () => {
                 order_id: "order-1",
                 order_status: OrderStatus.OUT_FOR_DELIVERY,
             },
-            { publicKey: "public_test" },
+            {
+                publicKey: "public_test",
+                privateKey: "private_test",
+            },
         );
 
         expect(emailjs.send).toHaveBeenNthCalledWith(
@@ -172,7 +182,10 @@ describe("Order notifications - Observer pattern", () => {
                 order_id: "order-1",
                 order_status: OrderStatus.DELIVERED,
             },
-            { publicKey: "public_test" },
+            {
+                publicKey: "public_test",
+                privateKey: "private_test",
+            },
         );
 
         expect(order.getStatus()).toBe(OrderStatus.DELIVERED);
