@@ -47,7 +47,9 @@ export async function buildApp() {
         orderRepository,
     });
     await app.register(paymentRoutes);
-    await app.register(orderNotificationRoutes);
+    await app.register(orderNotificationRoutes, {
+        orderRepository,
+    });
     await app.register(cartRoutes);
     await app.register(customPizzaRoutes);
     await app.register(orderHistoryRoutes, {

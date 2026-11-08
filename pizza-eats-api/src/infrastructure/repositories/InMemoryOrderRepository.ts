@@ -17,6 +17,10 @@ export class InMemoryOrderRepository implements OrderRepository {
         }
     }
 
+    findById(id: string): Order | undefined {
+        return this.orders.find((order) => order.id === id);
+    }
+
     findByCustomerEmail(email: string): Order[] {
         return this.orders.filter(
             (order) => order.customerEmail === email,

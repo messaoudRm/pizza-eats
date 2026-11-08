@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { OrderStatus } from "../../domain/entities/OrderStatus";
 import { OrderNotificationController } from "../controllers/OrderNotificationController";
+import { OrderRepository } from "../../domain/repositories/OrderRepository";
 
 type UpdateStatusRequest = {
     orderId: string;
@@ -19,8 +20,15 @@ type ToggleListenerBody = {
     enabled: boolean;
 };
 
-export async function orderNotificationRoutes(app: FastifyInstance) {
-    const controller = new OrderNotificationController();
+type OrderNotificationRouteOptions = {
+    orderRepository: OrderRepository;
+};
+
+export async function orderNotificationRoutes(
+    app: FastifyInstance,
+    options: OrderNotificationRouteOptions,
+) {
+    const controller = new OrderNotificationController(options.orderRepository);
 
     app.patch<{
         Params: UpdateStatusRequest;

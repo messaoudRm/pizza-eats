@@ -5,9 +5,9 @@ import { EmailNotificationListener } from "../../domain/notifications/listeners/
 import { SMSNotificationListener } from "../../domain/notifications/listeners/SMSNotificationListener";
 import { PushNotificationListener } from "../../domain/notifications/listeners/PushNotificationListener";
 import { Order } from "../../domain/entities/Order";
+import { OrderRepository } from "../../domain/repositories/OrderRepository";
 
 export class OrderNotificationController {
-    private readonly orders = new Map<string, Order>();
     private readonly subject = new OrderSubject();
     private readonly service = new OrderNotificationService();
 
@@ -17,7 +17,8 @@ export class OrderNotificationController {
         push: new PushNotificationListener(),
     };
 
-    constructor() {
+    // us 9 : le statut est mis à jour dans le repository partagé, lu par l'historique
+    constructor(private readonly orderRepository: OrderRepository) {
         this.subject.subscribe(this.listeners.email);
         this.subject.subscribe(this.listeners.sms);
         this.subject.subscribe(this.listeners.push);
@@ -34,11 +35,11 @@ async updateStatus(
     orderId: string;
     status: OrderStatus;
 }> {
-    let order = this.orders.get(orderId);
+    let order = this.orderRepository.findById(orderId);
 
     if (!order) {
         order = new Order(orderId, OrderStatus.CONFIRMED, customerEmail);
-        this.orders.set(orderId, order);
+        this.orderRepository.save(order);
 
         await this.subject.notify(
             orderId,
@@ -54,6 +55,8 @@ async updateStatus(
             this.subject,
             customerEmail,
         );
+
+        this.orderRepository.save(order);
     }
 
     return {
