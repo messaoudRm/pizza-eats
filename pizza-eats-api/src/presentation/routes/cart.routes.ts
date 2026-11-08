@@ -3,6 +3,9 @@ import { FastifyInstance } from "fastify";
 import { CartService } from "../../application/services/CartService";
 import { CartController } from "../controllers/CartController";
 import { Pizza } from "../../domain/entities/Pizza";
+import { CustomPizzaService } from "../../application/services/CustomPizzaService";
+import { CustomPizzaId } from "../../domain/customization/CustomPizzaId";
+import { Ingredient, PizzaBase, PizzaSize } from "../../domain/entities/CustomPizza";
 
 type AddCartItemRequest = {
     pizza: {
@@ -14,6 +17,14 @@ type AddCartItemRequest = {
     };
     quantity: number;
     size: string;
+};
+
+type AddCustomPizzaRequest = {
+    brandId: string;
+    base: PizzaBase;
+    size: PizzaSize;
+    ingredients: Ingredient[];
+    quantity: number;
 };
 
 type RemoveCartItemRequest = {
@@ -82,6 +93,61 @@ export async function cartRoutes(app: FastifyInstance) {
                         pizza.description,
                         pizza.basePrice,
                         pizza.stock,
+                    ),
+                    quantity,
+                    size,
+                );
+
+                return reply.status(201).send(result);
+            } catch (error) {
+                return reply.status(400).send({
+                    success: false,
+                    message: error instanceof Error ? error.message : "Erreur",
+                });
+            }
+        },
+    );
+
+    // Ajouter une pizza composée : le prix et la description sont calculés par le serveur
+    const customPizzaService = new CustomPizzaService();
+
+    app.post<{ Body: AddCustomPizzaRequest }>(
+        "/cart/custom-pizzas",
+        {
+            schema: {
+                tags: ["Cart"],
+                summary: "Ajouter une pizza composée au panier",
+                body: {
+                    type: "object",
+                    required: ["brandId", "base", "size", "ingredients", "quantity"],
+                    properties: {
+                        brandId: { type: "string" },
+                        base: { type: "string", enum: ["tomato", "cream"] },
+                        size: { type: "string", enum: ["S", "M", "L", "XL"] },
+                        ingredients: {
+                            type: "array",
+                            items: {
+                                type: "string",
+                                enum: ["mozzarella", "pepperoni", "mushrooms", "ham", "olives", "gorgonzola"],
+                            },
+                        },
+                        quantity: { type: "integer", minimum: 1 },
+                    },
+                },
+            },
+        },
+        async (request, reply) => {
+            try {
+                const { brandId, base, size, ingredients, quantity } = request.body;
+                const custom = customPizzaService.customize({ brandId, base, size, ingredients });
+
+                const result = cartController.addItem(
+                    new Pizza(
+                        CustomPizzaId.encode({ base, size, ingredients }),
+                        "Pizza composée",
+                        custom.description,
+                        custom.total,
+                        0,
                     ),
                     quantity,
                     size,

@@ -1,9 +1,14 @@
 import { FastifyInstance } from "fastify";
 import { BrandService } from "../../application/services/BrandService";
 import { BrandController } from "../controllers/BrandController";
+import { StockRepository } from "../../domain/repositories/StockRepository";
 
-export async function brandRoutes(app: FastifyInstance) {
-  const brandService = new BrandService();
+type BrandRouteOptions = {
+  stockRepository: StockRepository;
+};
+
+export async function brandRoutes(app: FastifyInstance, options: BrandRouteOptions) {
+  const brandService = new BrandService(options.stockRepository);
   const brandController = new BrandController(brandService);
 
   // GET /brands

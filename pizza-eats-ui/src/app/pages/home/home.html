@@ -1,0 +1,33 @@
+<main class="page">
+  <header class="page-header">
+    <div>
+      <h1>Choisissez votre pizzeria</h1>
+      <p>Chaque enseigne a son menu, ses prix et sa zone de livraison.</p>
+    </div>
+  </header>
+
+  @if (loading) {
+    <div class="grid" aria-busy="true" aria-label="Chargement des enseignes">
+      @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+        <div class="skeleton skeleton-card"></div>
+      }
+    </div>
+  } @else if (error) {
+    <div class="alert alert-error" role="alert">
+      <app-icon name="alert" [size]="18" />
+      <span>{{ error }}</span>
+      <button type="button" class="btn btn-ghost retry" (click)="loadBrands()">Réessayer</button>
+    </div>
+  } @else if (brands.length === 0) {
+    <div class="empty">
+      <h2>Aucune enseigne pour le moment</h2>
+      <p>L’API ne renvoie aucune enseigne. Vérifiez qu’elles sont bien enregistrées côté serveur.</p>
+    </div>
+  } @else {
+    <div class="grid">
+      @for (brand of brands; track brand.id) {
+        <app-brand-card [brand]="brand" [image]="brandService.getImage(brand.id)" />
+      }
+    </div>
+  }
+</main>

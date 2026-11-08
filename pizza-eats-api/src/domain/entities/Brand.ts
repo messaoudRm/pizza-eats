@@ -46,4 +46,12 @@ export abstract class Brand {
         return this.sizeMultipliers[size];
     }
 
+    // Prix d'une pizza du menu selon la taille : le prix du menu correspond à la taille M,
+    // les autres tailles suivent les multiplicateurs de l'enseigne
+    calculatePriceForSize(pizza: Pizza, size: "S" | "M" | "L" | "XL"): number {
+        const ratio = this.getSizeMultiplier(size) / this.getSizeMultiplier("M");
+
+        return this.roundPrice(this.calculatePrice(pizza) * ratio);
+    }
+
 }

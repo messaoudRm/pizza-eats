@@ -1,0 +1,39 @@
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" routerLink="/home" aria-label="Pizza Eats, accueil">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span>Pizza<strong>Eats</strong></span>
+    </a>
+
+    <nav class="nav" aria-label="Navigation principale">
+      <a routerLink="/home" routerLinkActive="is-active">Enseignes</a>
+      <a routerLink="/orders" routerLinkActive="is-active">
+        <app-icon name="list" [size]="18" />
+        Commandes
+      </a>
+      <a routerLink="/settings" routerLinkActive="is-active">
+        <app-icon name="settings" [size]="18" />
+        Paramètres
+      </a>
+    </nav>
+
+    <div class="actions">
+      <span class="api-state" [class]="'api-state api-' + apiState" [title]="getApiLabel()">
+        <span class="api-dot" aria-hidden="true"></span>
+        <span class="api-label">{{ getApiLabel() }}</span>
+      </span>
+
+      <a class="cart-button" routerLink="/cart" aria-label="Voir le panier">
+        <app-icon name="bag" [size]="20" />
+        <span>Panier</span>
+        @if (cartService.itemCount > 0) {
+          <span class="cart-count">{{ cartService.itemCount }}</span>
+        }
+      </a>
+
+      <button type="button" class="btn btn-ghost btn-icon" (click)="logout()" [title]="'Se déconnecter (' + getEmail() + ')'" aria-label="Se déconnecter">
+        <app-icon name="logout" [size]="18" />
+      </button>
+    </div>
+  </div>
+</header>

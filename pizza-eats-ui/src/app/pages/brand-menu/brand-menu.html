@@ -1,0 +1,73 @@
+<main class="page">
+  <a class="back-link" routerLink="/home">
+    <app-icon name="arrow-left" [size]="16" />
+    Toutes les enseignes
+  </a>
+
+  @if (loading) {
+    <div class="skeleton banner-skeleton" aria-busy="true" aria-label="Chargement du menu"></div>
+  } @else if (error) {
+    <div class="alert alert-error" role="alert">
+      <app-icon name="alert" [size]="18" />
+      <span>{{ error }}</span>
+      <button type="button" class="btn btn-ghost retry" (click)="loadMenu()">Réessayer</button>
+    </div>
+  } @else if (menu) {
+    <section class="banner">
+      <img [src]="getImage()" [alt]="'Pizza de ' + menu.name" />
+      <div class="banner-text">
+        <h1>{{ menu.name }}</h1>
+        <ul class="facts">
+          <li>
+            <app-icon name="clock" [size]="18" />
+            {{ getTodayHours() }}
+          </li>
+          <li>
+            <app-icon name="pin" [size]="18" />
+            Livraison dans le {{ getZones() }}
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="feedback" aria-live="polite">
+      @if (conflictBrand) {
+        <div class="alert alert-warning conflict" role="alert">
+          <app-icon name="alert" [size]="18" />
+          <span>Votre panier contient des pizzas de <strong>{{ conflictBrand.name }}</strong>. Une commande ne concerne qu’une enseigne.</span>
+          <button type="button" class="btn btn-secondary" [disabled]="adding" (click)="clearCart()">Vider le panier</button>
+        </div>
+      }
+      @if (addMessage) {
+        <div class="alert alert-success">
+          <app-icon name="check" [size]="18" />
+          <span>{{ addMessage }}</span>
+          <a class="see-cart" routerLink="/cart">Voir le panier</a>
+        </div>
+      }
+      @if (addError) {
+        <p class="alert alert-error" role="alert">
+          <app-icon name="alert" [size]="18" />
+          {{ addError }}
+        </p>
+      }
+    </div>
+
+    <div class="layout">
+      <section aria-labelledby="menu-title">
+        <h2 id="menu-title">Menu</h2>
+        @if (menu.menu.length === 0) {
+          <div class="empty">
+            <p>Cette enseigne n’a pas encore de pizza au menu.</p>
+          </div>
+        } @else {
+          @for (pizza of menu.menu; track pizza.id) {
+            <app-pizza-card [pizza]="pizza" [busy]="adding" (add)="addMenuPizza($event)" />
+          }
+        }
+      </section>
+
+      <app-pizza-composer [brandId]="menu.id" [busy]="adding" (add)="addCustomPizza($event)" />
+    </div>
+  }
+</main>

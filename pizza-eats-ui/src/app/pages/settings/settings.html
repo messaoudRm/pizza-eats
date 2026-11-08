@@ -1,0 +1,48 @@
+<main class="page narrow">
+  <header class="page-header">
+    <div>
+      <h1>Paramètres</h1>
+      <p>Choisissez comment être prévenu quand le statut d’une commande change.</p>
+    </div>
+  </header>
+
+  <ul class="settings">
+    @for (item of listeners; track item.value) {
+      <li class="setting">
+        <span class="setting-text">
+          <strong [id]="'label-' + item.value">{{ item.label }}</strong>
+          <span class="muted">{{ item.description }}</span>
+        </span>
+        <button
+          type="button"
+          role="switch"
+          class="switch"
+          [class.is-on]="isEnabled(item.value)"
+          [attr.aria-checked]="isEnabled(item.value)"
+          [attr.aria-labelledby]="'label-' + item.value"
+          [disabled]="updating !== ''"
+          (click)="toggle(item.value, item.label)"
+        >
+          <span class="knob" aria-hidden="true"></span>
+        </button>
+      </li>
+    }
+  </ul>
+
+  <div class="messages" aria-live="polite">
+    @if (message) {
+      <p class="alert alert-success">
+        <app-icon name="check" [size]="18" />
+        {{ message }}
+      </p>
+    }
+    @if (error) {
+      <p class="alert alert-error" role="alert">
+        <app-icon name="alert" [size]="18" />
+        {{ error }}
+      </p>
+    }
+  </div>
+
+  <p class="hint">L’API ne permet pas de lire l’état des notifications : l’interface retient votre dernier choix. Au redémarrage de l’API, les trois sont réactivées.</p>
+</main>

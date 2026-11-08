@@ -6,6 +6,8 @@ import { SMSNotificationListener } from "../../domain/notifications/listeners/SM
 import { PushNotificationListener } from "../../domain/notifications/listeners/PushNotificationListener";
 import { Order } from "../../domain/entities/Order";
 import { OrderRepository } from "../../domain/repositories/OrderRepository";
+import { StockRepository } from "../../domain/repositories/StockRepository";
+import { CustomPizzaId } from "../../domain/customization/CustomPizzaId";
 
 export class OrderNotificationController {
     private readonly subject = new OrderSubject();
@@ -18,7 +20,10 @@ export class OrderNotificationController {
     };
 
     // us 9 : le statut est mis à jour dans le repository partagé, lu par l'historique
-    constructor(private readonly orderRepository: OrderRepository) {
+    constructor(
+        private readonly orderRepository: OrderRepository,
+        private readonly stockRepository: StockRepository,
+    ) {
         this.subject.subscribe(this.listeners.email);
         this.subject.subscribe(this.listeners.sms);
         this.subject.subscribe(this.listeners.push);
@@ -49,6 +54,16 @@ async updateStatus(
     }
 
     if (status !== OrderStatus.CONFIRMED) {
+        // Commande annulée avant livraison : les pizzas reviennent en stock
+        const previousStatus = order.getStatus();
+        if (
+            status === OrderStatus.CANCELLED &&
+            previousStatus !== OrderStatus.CANCELLED &&
+            previousStatus !== OrderStatus.DELIVERED
+        ) {
+            this.restock(order);
+        }
+
         await this.service.updateStatus(
             order,
             status,
@@ -67,6 +82,15 @@ async updateStatus(
     };
 }
 
+
+    // Une pizza composée est préparée à la demande : pas de stock à remettre
+    private restock(order: Order): void {
+        for (const line of order.lines) {
+            if (!CustomPizzaId.decode(line.pizzaId)) {
+                this.stockRepository.increment(order.brandId, line.pizzaId, line.quantity);
+            }
+        }
+    }
 
     toggleListener(
         name: "email" | "sms" | "push",

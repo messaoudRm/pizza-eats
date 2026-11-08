@@ -1,0 +1,39 @@
+<main class="page narrow">
+  @if (order) {
+    <section class="confirmation">
+      <span class="check" aria-hidden="true">
+        <app-icon name="check" [size]="32" />
+      </span>
+      <h1>Commande confirmée</h1>
+      <p class="muted">{{ order.brandName }} a bien reçu votre commande.</p>
+
+      <dl class="details">
+        <div>
+          <dt>Numéro de commande</dt>
+          <dd class="order-id">{{ order.orderId }}</dd>
+        </div>
+        <div>
+          <dt>Montant</dt>
+          <dd class="price">{{ order.amount | currency: 'EUR' }}</dd>
+        </div>
+      </dl>
+
+      @if (order.paymentSuccess) {
+        <p class="alert alert-success">
+          <app-icon name="check" [size]="18" />
+          {{ order.paymentMessage }}
+        </p>
+      } @else {
+        <p class="alert alert-warning">
+          <app-icon name="alert" [size]="18" />
+          {{ order.paymentMessage }}
+        </p>
+      }
+
+      <div class="actions">
+        <a class="btn btn-primary" [routerLink]="['/orders', order.orderId]">Suivre ma commande</a>
+        <a class="btn btn-ghost" routerLink="/home">Retour aux enseignes</a>
+      </div>
+    </section>
+  }
+</main>

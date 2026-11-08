@@ -1,45 +1,38 @@
 services:
-  pizza-eats-ui:
-    build:
-      context: ./pizza-eats-ui
-    container_name: pizza-eats-ui
-    ports:
-      - "4200:4200"
-    depends_on:
-      - pizza-eats-api
-    networks:
-      - pizza-eats-network
-
   pizza-eats-api:
     build:
       context: ./pizza-eats-api
     container_name: pizza-eats-api
     ports:
       - "3000:3000"
+    # Clés EmailJS (facultatif : l'API démarre sans ce fichier)
     env_file:
-      - pizza-eats-api/.env
-    depends_on:
-      - postgres
+      - path: ./pizza-eats-api/.env
+        required: false
+    # L'API est prête quand /health répond
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
     networks:
       - pizza-eats-network
 
-  postgres:
-    image: postgres:17-alpine
-    container_name: pizza-eats-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  pizza-eats-ui:
+    build:
+      context: ./pizza-eats-ui
+    container_name: pizza-eats-ui
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - "4200:4200"
+    # Le proxy Angular redirige /api vers l'API par le réseau Docker
+    environment:
+      API_URL: http://pizza-eats-api:3000
+    depends_on:
+      pizza-eats-api:
+        condition: service_healthy
     networks:
       - pizza-eats-network
-
-volumes:
-  postgres-data:
 
 networks:
   pizza-eats-network:

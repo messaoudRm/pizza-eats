@@ -1,0 +1,159 @@
+<main class="page">
+  <header class="page-header">
+    <div>
+      <h1>Votre panier</h1>
+      @if (brand && items.length > 0) {
+        <p>Commande chez {{ brand.name }}</p>
+      }
+    </div>
+    <div class="history-actions">
+      <button type="button" class="btn btn-ghost" [disabled]="busy || loading" (click)="undo()">
+        <app-icon name="undo" [size]="18" />
+        Annuler
+      </button>
+      <button type="button" class="btn btn-ghost" [disabled]="busy || loading" (click)="redo()">
+        <app-icon name="redo" [size]="18" />
+        Rétablir
+      </button>
+    </div>
+  </header>
+
+  <div class="messages" aria-live="polite">
+    @if (error) {
+      <p class="alert alert-error" role="alert">
+        <app-icon name="alert" [size]="18" />
+        {{ error }}
+      </p>
+    }
+    @if (info) {
+      <p class="alert alert-info">{{ info }}</p>
+    }
+  </div>
+
+  @if (loading && items.length === 0) {
+    <div class="skeleton skeleton-list" aria-busy="true" aria-label="Chargement du panier"></div>
+  } @else if (items.length === 0) {
+    <div class="empty">
+      <h2>Votre panier est vide</h2>
+      <p>Choisissez une enseigne, puis ajoutez une pizza du menu ou composez la vôtre.</p>
+      <a class="btn btn-primary" routerLink="/home">Voir les enseignes</a>
+    </div>
+  } @else {
+    <div class="layout">
+      <section aria-label="Articles du panier">
+        @for (item of items; track item.pizza.id + item.size; let index = $index) {
+          <app-cart-item
+            [item]="item"
+            [lineTotal]="getLineTotal(index)"
+            [isCustom]="isCustom(item)"
+            [busy]="busy"
+            (increase)="increase(item)"
+            (remove)="remove(item)"
+            (sizeChange)="changeSize(item, $event)"
+          />
+        }
+        @if (brand === null) {
+          <p class="alert alert-warning">
+            <app-icon name="alert" [size]="18" />
+            L’enseigne de ce panier est inconnue. Videz le panier et ajoutez vos pizzas depuis une enseigne.
+          </p>
+        }
+      </section>
+
+      <aside class="summary" aria-label="Résumé de la commande">
+        <section class="block">
+          <h2>Réduction</h2>
+          <div class="chips" role="group" aria-label="Type de réduction">
+            @for (item of strategies; track item.value) {
+              <button type="button" class="chip" [class.is-active]="item.value === strategy" [attr.aria-pressed]="item.value === strategy" (click)="selectStrategy(item.value)">
+                {{ item.label }}
+              </button>
+            }
+          </div>
+          @if (strategy === 'promo-code') {
+            <form class="promo" (ngSubmit)="calculatePrice()">
+              <label class="sr-only" for="promo-code">Code promo</label>
+              <input id="promo-code" name="promoCode" class="input" placeholder="Votre code promo" autocomplete="off" [(ngModel)]="promoCode" />
+              <button type="submit" class="btn btn-secondary" [disabled]="pricingLoading">Appliquer</button>
+            </form>
+          }
+          @if (pricingError) {
+            <p class="alert alert-error" role="alert">
+              <app-icon name="alert" [size]="18" />
+              {{ pricingError }}
+            </p>
+          }
+        </section>
+
+        <section class="block totals" [attr.aria-busy]="pricingLoading">
+          <div class="row">
+            <span>Sous-total</span>
+            @if (pricing) {
+              <span class="price">{{ pricing.total | currency: 'EUR' }}</span>
+            } @else {
+              <span class="muted">—</span>
+            }
+          </div>
+          @if (pricing && pricing.promotion) {
+            <div class="row discount">
+              <span>Réduction</span>
+              <span class="price">−{{ pricing.promotion.discount | currency: 'EUR' }}</span>
+            </div>
+          }
+          <div class="row total">
+            <span>Total</span>
+            @if (pricing) {
+              <span class="price">{{ pricing.finalPrice | currency: 'EUR' }}</span>
+            } @else {
+              <span class="muted">—</span>
+            }
+          </div>
+        </section>
+
+        <section class="block">
+          <h2>Livraison</h2>
+          <div class="field">
+            <label for="arrondissement">Arrondissement de Paris</label>
+            <select id="arrondissement" name="arrondissement" class="select" [(ngModel)]="arrondissement" (ngModelChange)="orderError = ''">
+              @for (item of arrondissements; track item) {
+                <option [ngValue]="item">Paris {{ item }}e</option>
+              }
+            </select>
+            @if (menu) {
+              <span class="hint">{{ getZonesHint() }}</span>
+            }
+          </div>
+
+          <div class="simulate">
+            <button type="button" class="btn btn-ghost" [class.is-on]="simulatedTime !== null" [disabled]="menu === null" (click)="toggleSimulatedTime()" [attr.aria-pressed]="simulatedTime !== null">
+              <app-icon name="clock" [size]="18" />
+              @if (simulatedTime) {
+                Heure simulée : {{ simulatedTime.label }}
+              } @else {
+                Simuler une heure d’ouverture
+              }
+            </button>
+            <span class="hint">Pour la démo : la commande est envoyée comme si l’enseigne était ouverte.</span>
+          </div>
+        </section>
+
+        @if (orderError) {
+          <p class="alert alert-error" role="alert">
+            <app-icon name="alert" [size]="18" />
+            {{ orderError }}
+          </p>
+        }
+
+        <button type="button" class="btn btn-primary btn-block order-button" [disabled]="pricing === null || ordering || busy" (click)="validateOrder()">
+          @if (ordering) {
+            Validation…
+          } @else if (pricing) {
+            Commander · {{ pricing.finalPrice | currency: 'EUR' }}
+          } @else {
+            Commander
+          }
+        </button>
+      </aside>
+    </div>
+  }
+</main>

@@ -1,0 +1,9 @@
+<a class="brand-card" [routerLink]="['/brands', brand().id]">
+  <div class="photo">
+    <img [src]="image()" [alt]="'Pizza de ' + brand().name" loading="lazy" (error)="onImageError($event)" />
+  </div>
+  <div class="body">
+    <h3>{{ brand().name }}</h3>
+    <span class="link">Voir le menu</span>
+  </div>
+</a>

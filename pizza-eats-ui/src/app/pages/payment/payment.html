@@ -1,0 +1,40 @@
+<main class="page narrow">
+  @if (order) {
+    <header class="page-header">
+      <div>
+        <h1>Paiement</h1>
+        <p>Commande chez {{ order.brandName }}</p>
+      </div>
+    </header>
+
+    <fieldset class="methods">
+      <legend class="field-label">Moyen de paiement</legend>
+      @for (item of methods; track item.value) {
+        <label class="method" [class.is-active]="item.value === method">
+          <input type="radio" name="method" [value]="item.value" [checked]="item.value === method" (change)="selectMethod(item.value)" />
+          <app-icon [name]="getIcon(item.value)" [size]="22" />
+          <span class="method-text">
+            <strong>{{ item.label }}</strong>
+            <span class="muted">{{ item.description }}</span>
+          </span>
+        </label>
+      }
+    </fieldset>
+
+    @if (error) {
+      <p class="alert alert-error" role="alert">
+        <app-icon name="alert" [size]="18" />
+        {{ error }}
+      </p>
+    }
+
+    <button type="button" class="btn btn-primary btn-block pay-button" [disabled]="paying" (click)="pay()">
+      @if (paying) {
+        Paiement en cours…
+      } @else {
+        Payer {{ order.amount | currency: 'EUR' }}
+      }
+    </button>
+    <p class="hint centered">Paiement simulé : aucun débit réel. En cas d’incident, la plateforme bascule vers le paiement en espèces.</p>
+  }
+</main>

@@ -1,0 +1,36 @@
+<article class="pizza-card" [class.is-sold-out]="isSoldOut()">
+  <div class="info">
+    <h3>
+      {{ pizza().name }}
+      @if (isSoldOut()) {
+        <span class="stock stock-out">Épuisée</span>
+      } @else if (isLowStock()) {
+        <span class="stock stock-low">Plus que {{ pizza().stock }} en stock</span>
+      } @else {
+        <span class="stock stock-ok">{{ pizza().stock }} en stock</span>
+      }
+    </h3>
+    <p class="muted">{{ pizza().description }}</p>
+    <p class="price">{{ getPrice() | currency: 'EUR' }} <span class="price-size">· taille {{ selectedSize }}</span></p>
+  </div>
+
+  <div class="controls">
+    <div class="chips" role="group" [attr.aria-label]="'Taille de la ' + pizza().name">
+      @for (size of sizes; track size) {
+        <button
+          type="button"
+          class="chip"
+          [class.is-active]="size === selectedSize"
+          [attr.aria-pressed]="size === selectedSize"
+          (click)="selectSize(size)"
+        >
+          {{ size }}
+        </button>
+      }
+    </div>
+    <button type="button" class="btn btn-primary" [disabled]="busy() || isSoldOut()" (click)="onAdd()">
+      <app-icon name="plus" [size]="18" />
+      Ajouter
+    </button>
+  </div>
+</article>

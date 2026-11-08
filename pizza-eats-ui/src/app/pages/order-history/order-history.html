@@ -1,0 +1,54 @@
+<main class="page">
+  <header class="page-header">
+    <div>
+      <h1>Mes commandes</h1>
+      <p>De la plus récente à la plus ancienne.</p>
+    </div>
+  </header>
+
+  <div class="chips filters" role="group" aria-label="Filtrer par statut">
+    <button type="button" class="chip" [class.is-active]="status === ''" [attr.aria-pressed]="status === ''" (click)="selectStatus('')">Toutes</button>
+    @for (item of statuses; track item.value) {
+      <button type="button" class="chip" [class.is-active]="status === item.value" [attr.aria-pressed]="status === item.value" (click)="selectStatus(item.value)">
+        {{ item.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="skeleton skeleton-list" aria-busy="true" aria-label="Chargement des commandes"></div>
+  } @else if (error) {
+    <div class="alert alert-error" role="alert">
+      <app-icon name="alert" [size]="18" />
+      <span>{{ error }}</span>
+      <button type="button" class="btn btn-ghost retry" (click)="loadOrders()">Réessayer</button>
+    </div>
+  } @else if (orders.length === 0) {
+    <div class="empty">
+      @if (status === '') {
+        <h2>Aucune commande pour le moment</h2>
+        <p>Vos commandes apparaîtront ici après leur validation.</p>
+        <a class="btn btn-primary" routerLink="/home">Commander une pizza</a>
+      } @else {
+        <h2>Aucune commande avec ce statut</h2>
+        <p>Essayez un autre filtre ou affichez toutes vos commandes.</p>
+        <button type="button" class="btn btn-secondary" (click)="selectStatus('')">Voir toutes les commandes</button>
+      }
+    </div>
+  } @else {
+    <ul class="orders">
+      @for (order of orders; track order.id) {
+        <li>
+          <a class="order" [routerLink]="['/orders', order.id]">
+            <span class="order-main">
+              <strong>Commande {{ getShortId(order.id) }}</strong>
+              <span class="muted">{{ order.createdAt | date: 'EEEE d MMMM y, HH:mm' }}</span>
+            </span>
+            <app-status-badge [status]="order.status" />
+            <span class="order-link">Suivre</span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</main>

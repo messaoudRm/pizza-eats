@@ -1,0 +1,65 @@
+<section class="composer" aria-labelledby="composer-title">
+  <div class="composer-head">
+    <h2 id="composer-title">Composer ma pizza</h2>
+    <p class="muted">Base 5 €, plus les ingrédients, multiplié selon la taille et l’enseigne.</p>
+  </div>
+
+  <div class="step">
+    <span class="field-label">Base</span>
+    <div class="chips" role="group" aria-label="Base">
+      @for (item of bases; track item.value) {
+        <button type="button" class="chip" [class.is-active]="item.value === base" [attr.aria-pressed]="item.value === base" (click)="selectBase(item.value)">
+          {{ item.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="field-label">Taille</span>
+    <div class="chips" role="group" aria-label="Taille">
+      @for (item of sizes; track item) {
+        <button type="button" class="chip" [class.is-active]="item === size" [attr.aria-pressed]="item === size" (click)="selectSize(item)">
+          {{ item }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="step">
+    <span class="field-label">Ingrédients</span>
+    <div class="chips" role="group" aria-label="Ingrédients">
+      @for (item of ingredients; track item.value) {
+        <button type="button" class="chip" [class.is-active]="isSelected(item.value)" [attr.aria-pressed]="isSelected(item.value)" (click)="toggleIngredient(item.value)">
+          {{ item.label }}
+          <span class="chip-price">+{{ item.price | currency: 'EUR' }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (error) {
+    <p class="alert alert-error" role="alert">
+      <app-icon name="alert" [size]="18" />
+      {{ error }}
+    </p>
+  }
+
+  <div class="total" aria-live="polite" [attr.aria-busy]="loading">
+    @if (result) {
+      <div [class.is-loading]="loading">
+        <p class="muted">{{ result.description }}</p>
+        <p class="total-price price">{{ result.total | currency: 'EUR' }}</p>
+      </div>
+    } @else {
+      <p class="muted">Calcul du prix…</p>
+    }
+
+    <div class="total-actions">
+      <button type="button" class="btn btn-primary" [disabled]="busy()" (click)="onAdd()">
+        <app-icon name="plus" [size]="18" />
+        Ajouter au panier
+      </button>
+    </div>
+  </div>
+</section>

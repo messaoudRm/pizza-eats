@@ -27,6 +27,7 @@ export async function pricingRoutes(app: FastifyInstance) {
                                 properties: {
                                     pizzaId: { type: "string" },
                                     quantity: { type: "integer", minimum: 1 },
+                                    size: { type: "string", enum: ["S", "M", "L", "XL"] },
                                 },
                             },
                         },

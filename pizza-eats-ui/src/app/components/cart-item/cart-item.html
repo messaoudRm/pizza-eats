@@ -1,0 +1,37 @@
+<article class="cart-item">
+  <div class="info">
+    <h3>{{ item().pizza.name }}</h3>
+    <p class="muted">{{ item().pizza.description }}</p>
+  </div>
+
+  <div class="size">
+    @if (isCustom()) {
+      <span class="size-fixed" title="La taille fait partie de la composition">Taille {{ item().size }}</span>
+    } @else {
+      <label class="sr-only" [for]="'size-' + item().pizza.id + item().size">Taille</label>
+      <select class="select" [id]="'size-' + item().pizza.id + item().size" [disabled]="busy()" (change)="onSizeChange($event)">
+        @for (size of sizes; track size) {
+          <option [value]="size" [selected]="size === item().size">Taille {{ size }}</option>
+        }
+      </select>
+    }
+  </div>
+
+  <div class="quantity">
+    <span class="qty" aria-label="Quantité">× {{ item().quantity }}</span>
+    <button type="button" class="btn btn-ghost btn-icon" [disabled]="busy()" (click)="increase.emit()" aria-label="Ajouter un exemplaire">
+      <app-icon name="plus" [size]="18" />
+    </button>
+    <button type="button" class="btn btn-ghost btn-icon" [disabled]="busy()" (click)="remove.emit()" aria-label="Supprimer cet article">
+      <app-icon name="trash" [size]="18" />
+    </button>
+  </div>
+
+  <p class="line-total price">
+    @if (lineTotal() !== null) {
+      {{ lineTotal() | currency: 'EUR' }}
+    } @else {
+      <span class="muted">—</span>
+    }
+  </p>
+</article>

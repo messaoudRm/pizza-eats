@@ -1,0 +1,40 @@
+<main class="login">
+  <div class="photo">
+    <img src="images/login.webp" alt="Pizzaiolo enfournant une pizza dans un four à bois" />
+  </div>
+
+  <section class="form-side">
+    <form class="form" (ngSubmit)="submit()" novalidate>
+      <p class="logo">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span>Pizza<strong>Eats</strong></span>
+      </p>
+      <h1>Vos pizzerias préférées, livrées chez vous</h1>
+      <p class="muted">Entrez votre email pour commencer. Pas de mot de passe.</p>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          class="input"
+          autocomplete="email"
+          placeholder="nom@exemple.fr"
+          [(ngModel)]="email"
+          [attr.aria-invalid]="error !== ''"
+          aria-describedby="email-error"
+        />
+      </div>
+
+      @if (error) {
+        <p id="email-error" class="alert alert-error" role="alert">
+          <app-icon name="alert" [size]="18" />
+          {{ error }}
+        </p>
+      }
+
+      <button type="submit" class="btn btn-primary btn-block">Continuer</button>
+    </form>
+  </section>
+</main>

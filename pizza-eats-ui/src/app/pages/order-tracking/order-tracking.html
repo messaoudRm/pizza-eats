@@ -1,0 +1,86 @@
+<main class="page narrow">
+  <a class="back-link" routerLink="/orders">
+    <app-icon name="arrow-left" [size]="16" />
+    Mes commandes
+  </a>
+
+  @if (loading) {
+    <div class="skeleton skeleton-block" aria-busy="true" aria-label="Chargement de la commande"></div>
+  } @else if (error) {
+    <div class="alert alert-error" role="alert">
+      <app-icon name="alert" [size]="18" />
+      <span>{{ error }}</span>
+      <button type="button" class="btn btn-ghost retry" (click)="loadOrder()">Réessayer</button>
+    </div>
+  } @else if (notFound) {
+    <div class="empty">
+      <h2>Commande introuvable</h2>
+      <p>Cette commande n’apparaît pas dans votre historique. Elle a peut-être été passée avec un autre email.</p>
+      <a class="btn btn-primary" routerLink="/orders">Voir mes commandes</a>
+    </div>
+  } @else if (order) {
+    <header class="page-header">
+      <div>
+        <h1>Suivi de commande</h1>
+        <p>Passée le {{ order.createdAt | date: 'EEEE d MMMM y, HH:mm' }}</p>
+      </div>
+      <app-status-badge [status]="order.status" />
+    </header>
+
+    @if (order.status === 'CANCELLED') {
+      <p class="alert alert-error">
+        <app-icon name="alert" [size]="18" />
+        Cette commande a été annulée.
+      </p>
+    } @else {
+      <ol class="timeline">
+        @for (step of steps; track step) {
+          <li [class.is-done]="isStepDone(step)" [class.is-current]="isCurrentStep(step)">
+            <span class="dot" aria-hidden="true">
+              @if (isStepDone(step)) {
+                <app-icon name="check" [size]="14" />
+              }
+            </span>
+            <span class="step-label">{{ getLabel(step) }}</span>
+          </li>
+        }
+      </ol>
+    }
+
+    <p class="order-id muted">N° {{ order.id }}</p>
+
+    <section class="simulation" aria-labelledby="simulation-title">
+      <h2 id="simulation-title">Simuler le restaurant</h2>
+      <p class="muted">Faites avancer la commande comme le ferait la pizzeria. Chaque changement déclenche les notifications actives (voir Paramètres).</p>
+
+      <div class="simulation-actions">
+        @if (getNextStatus(); as next) {
+          <button type="button" class="btn btn-primary" [disabled]="updating" (click)="advance()">
+            Passer à : {{ getLabel(next) }}
+          </button>
+        }
+        @if (canCancel()) {
+          <button type="button" class="btn btn-ghost" [disabled]="updating" (click)="cancel()">Annuler la commande</button>
+        }
+        @if (!getNextStatus() && !canCancel()) {
+          <p class="muted">Cette commande est terminée.</p>
+        }
+      </div>
+
+      <div aria-live="polite">
+        @if (updateMessage) {
+          <p class="alert alert-success">
+            <app-icon name="check" [size]="18" />
+            {{ updateMessage }}
+          </p>
+        }
+        @if (updateError) {
+          <p class="alert alert-error" role="alert">
+            <app-icon name="alert" [size]="18" />
+            {{ updateError }}
+          </p>
+        }
+      </div>
+    </section>
+  }
+</main>
