@@ -9,7 +9,7 @@
 # =====================================
 # Environment variables
 # =====================================
-.env
+pizza-eats-api/.env
 .env.*
 !.env.example
 
