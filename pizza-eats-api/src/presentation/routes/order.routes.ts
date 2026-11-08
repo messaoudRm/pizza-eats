@@ -1,10 +1,16 @@
 
 import { FastifyInstance } from "fastify";
+import { randomUUID } from "node:crypto";
+
 import { OrderValidationService } from "../../application/services/OrderValidationService";
 import { OrderController } from "../controllers/OrderController";
+import { OrderRepository } from "../../domain/repositories/OrderRepository";
+import { Order } from "../../domain/entities/Order";
+import { OrderStatus } from "../../domain/entities/OrderStatus";
 
 type OrderRequest = {
     brandId: string;
+    customerEmail: string;
     deliveryArrondissement: number;
     total: number;
     currentDateTime?: string;
@@ -14,7 +20,14 @@ type OrderRequest = {
     }[];
 };
 
-export async function orderRoutes(app: FastifyInstance) {
+type OrderRouteOptions = {
+    orderRepository: OrderRepository;
+};
+
+export async function orderRoutes(
+    app: FastifyInstance,
+    options: OrderRouteOptions,
+) {
     const orderValidationService = new OrderValidationService();
     const orderController = new OrderController(orderValidationService);
 
@@ -26,9 +39,16 @@ export async function orderRoutes(app: FastifyInstance) {
                 summary: "Valider une commande",
                 body: {
                     type: "object",
-                    required: ["brandId", "deliveryArrondissement", "total", "pizzas"],
+                    required: [
+                        "brandId",
+                        "customerEmail",
+                        "deliveryArrondissement",
+                        "total",
+                        "pizzas",
+                    ],
                     properties: {
                         brandId: { type: "string" },
+                        customerEmail: { type: "string", format: "email" },
                         deliveryArrondissement: {
                             type: "integer",
                             minimum: 1,
@@ -58,7 +78,24 @@ export async function orderRoutes(app: FastifyInstance) {
             try {
                 const result = orderController.validateOrder(request.body);
 
-                return reply.status(result.valid ? 200 : 400).send(result);
+                if (!result.valid) {
+                    return reply.status(400).send(result);
+                }
+
+                // Création de la commande après validation réussie
+                const order = new Order(
+                    randomUUID(),
+                    OrderStatus.CONFIRMED,
+                    request.body.customerEmail,
+                );
+
+                // Enregistrement de la commande dans le repository partagé
+                options.orderRepository.save(order);
+
+                return reply.status(200).send({
+                    ...result,
+                    orderId: order.id,
+                });
             } catch (error) {
                 return reply.status(400).send({
                     valid: false,

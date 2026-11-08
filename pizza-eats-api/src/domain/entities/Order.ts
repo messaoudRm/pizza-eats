@@ -5,6 +5,7 @@ export class Order {
         public readonly id: string,
         private status: OrderStatus = OrderStatus.CONFIRMED,
         public readonly customerEmail: string = "",
+        public readonly createdAt: Date = new Date(),
     ) {}
 
     getStatus(): OrderStatus {
