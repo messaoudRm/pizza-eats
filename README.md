@@ -52,12 +52,6 @@ Accéder au projet :
 cd pizza-eats
 ```
 
-Se placer sur la branche de développement :
-
-```bash
-git switch develop
-```
-
 ## Configuration de l'environnement (facultatif)
 
 Le fichier d'environnement ne sert qu'à l'envoi d'emails via EmailJS, lors d'un changement de statut de commande. **Le projet démarre sans lui.**
