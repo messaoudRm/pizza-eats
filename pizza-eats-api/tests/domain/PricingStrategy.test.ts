@@ -4,6 +4,7 @@ import { PricingService } from "../../src/application/services/PricingService";
 import "../../src/domain/brands/registerBrands";
 import {PromoCodePricing} from "../../src/domain/pricing/strategies/PromoCodePricing";
 
+// us7 Tests sur les stratégies de prix
 describe("PricingController", () => {
     const controller = new PricingController(new PricingService());
 
@@ -104,5 +105,20 @@ describe("PricingController", () => {
 
         expect(result.discount).toBe(20);
         expect(result.finalPrice).toBe(0);
+    });
+
+    it("should apply a 10% loyalty discount", () => {
+        const result = controller.calculatePrice({
+            brandId: "da-michele",
+            pizzas: [{ pizzaId: "dm-1", quantity: 2 }],
+            strategy: "loyalty",
+        });
+
+        expect(result.total).toBe(20);
+        expect(result.promotion).toEqual({
+            strategy: "loyalty",
+            discount: 2,
+        });
+        expect(result.finalPrice).toBe(18);
     });
 });
