@@ -47,7 +47,7 @@ export class Rossopomodoro extends Brand {
                 { open: "12:00", close: "15:00" },
                 { open: "19:00", close: "23:00" },
             ],
-        });
+        }, { S: 0.85, M: 1.1, L: 1.35, XL: 1.7 });
     }
 
     calculatePrice(pizza: Pizza): number {

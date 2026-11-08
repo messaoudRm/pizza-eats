@@ -44,7 +44,7 @@ export class Pizzium extends Brand {
                 { open: "11:45", close: "14:15" },
                 { open: "18:45", close: "22:00" },
             ],
-        });
+        }, { S: 0.75, M: 1, L: 1.2, XL: 1.5 });
     }
 
     calculatePrice(pizza: Pizza): number {

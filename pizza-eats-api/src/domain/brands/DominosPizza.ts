@@ -50,7 +50,7 @@ export class DominosPizza extends Brand {
                 { open: "11:00", close: "14:00" },
                 { open: "18:00", close: "23:00" },
             ],
-        });
+        }, { S: 0.9, M: 1.15, L: 1.45, XL: 1.75 });
     }
 
     calculatePrice(pizza: Pizza): number {

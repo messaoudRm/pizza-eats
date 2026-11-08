@@ -24,6 +24,8 @@ export abstract class Brand {
     protected readonly menu: Pizza[],
     public readonly deliveryArrondissements: number[],
     public readonly openingHours: OpeningHours,
+    // us 8 : multiplicateur de taille propre à chaque enseigne
+    protected readonly sizeMultipliers: SizeMultipliers,
   ) {}
 
   getMenu(): Pizza[] {
@@ -41,14 +43,7 @@ export abstract class Brand {
   }
 
     getSizeMultiplier(size: "S" | "M" | "L" | "XL"): number {
-        const multipliers: SizeMultipliers = {
-            S: 0.8,
-            M: 1,
-            L: 1.2,
-            XL: 1.5,
-        };
-
-        return multipliers[size];
+        return this.sizeMultipliers[size];
     }
 
 }

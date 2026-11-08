@@ -47,7 +47,7 @@ export class PizzaHut extends Brand {
                 { open: "11:30", close: "15:00" },
                 { open: "18:00", close: "22:30" },
             ],
-        });
+        }, { S: 0.85, M: 1.05, L: 1.4, XL: 1.65 });
     }
 
     calculatePrice(pizza: Pizza): number {

@@ -64,7 +64,7 @@ describe("BrandFactory", () => {
     // us 1 : ajouter une enseigne = ajouter une classe (+ l'enregistrer)
     class TestBrand extends Brand {
       constructor() {
-        super("test-brand", "Test Brand", [new Pizza("tb-1", "Test", "Test", 10, 5)], [1], {});
+        super("test-brand", "Test Brand", [new Pizza("tb-1", "Test", "Test", 10, 5)], [1], {}, { S: 1, M: 1, L: 1, XL: 1 });
       }
 
       calculatePrice(pizza: Pizza): number {

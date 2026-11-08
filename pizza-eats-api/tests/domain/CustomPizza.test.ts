@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { PizzaBuilder } from "../../src/domain/customization/PizzaBuilder";
+import { CustomPizzaService } from "../../src/application/services/CustomPizzaService";
+import "../../src/domain/brands/registerBrands";
 
 describe("CustomPizza - Builder and Decorator", () => {
 
@@ -95,5 +97,24 @@ describe("CustomPizza - Builder and Decorator", () => {
             .build();
 
         expect(pizza.getDescription()).toBe("Pizza base tomato, taille XL");
+    });
+
+    // us 8 : (base 5€ + ingrédients) × multiplicateur de taille selon l'enseigne
+    it("should apply the size multiplier of each brand", () => {
+        const service = new CustomPizzaService();
+        const request = {
+            base: "tomato" as const,
+            size: "L" as const,
+            ingredients: ["mozzarella" as const, "ham" as const],
+        };
+
+        // (5 + 1.5 + 2) = 8.5
+        const daMichele = service.customize({ ...request, brandId: "da-michele" });
+        const rossopomodoro = service.customize({ ...request, brandId: "rossopomodoro" });
+        const pizzium = service.customize({ ...request, brandId: "pizzium" });
+
+        expect(daMichele.total).toBe(11.05); // 8.5 × 1.3
+        expect(rossopomodoro.total).toBe(11.48); // 8.5 × 1.35
+        expect(pizzium.total).toBe(10.2); // 8.5 × 1.2
     });
 });

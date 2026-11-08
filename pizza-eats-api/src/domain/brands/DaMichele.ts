@@ -44,7 +44,7 @@ export class DaMichele extends Brand {
               { open: "11:30", close: "14:30" },
               { open: "18:30", close: "22:30" },
           ],
-      });
+      }, { S: 0.8, M: 1, L: 1.3, XL: 1.6 });
   }
 
   calculatePrice(pizza: Pizza): number {
