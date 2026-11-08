@@ -1,16 +1,10 @@
 import { BrandFactory } from "../../domain/factories/BrandFactory";
+import { BrandRegistry } from "../../domain/registries/BrandRegistry";
 
 export class BrandService {
-    private readonly brandIds = [
-        "da-michele",
-        "rossopomodoro",
-        "pizzium",
-        "dominos-pizza",
-        "pizza-hut",
-    ];
-
+  // us 1 : la liste des enseignes vient du registry, aucune liste en dur
   getAllBrands() {
-    return this.brandIds.map((id) => {
+    return BrandRegistry.getAll().map((id) => {
       const brand = BrandFactory.create(id);
 
       return {

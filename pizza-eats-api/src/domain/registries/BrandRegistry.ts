@@ -18,4 +18,9 @@ export class BrandRegistry {
 
     return brand;
   }
+
+  // us 1 : lister les enseignes enregistrées (ajouter une enseigne = ajouter une classe)
+  static getAll(): string[] {
+    return [...this.brands.keys()];
+  }
 }
