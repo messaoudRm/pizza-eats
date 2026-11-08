@@ -1,20 +1,15 @@
 import { PricingService } from "../../application/services/PricingService";
 import { BrandFactory } from "../../domain/factories/BrandFactory";
-import { PricingStrategy } from "../../domain/pricing/strategies/PricingStrategy";
-import { StandardPricing } from "../../domain/pricing/strategies/StandardPricing";
-import { HappyHourPricing } from "../../domain/pricing/strategies/HappyHourPricing";
-import { LoyaltyPricing } from "../../domain/pricing/strategies/LoyaltyPricing";
-import { PromoCodePricing } from "../../domain/pricing/strategies/PromoCodePricing";
+import { PricingStrategyRegistry } from "../../domain/pricing/PricingStrategyRegistry";
 
-type PricingRequest = {
+export type PricingRequest = {
     brandId: string;
     pizzas: {
         pizzaId: string;
         quantity: number;
     }[];
-    strategy: "standard" | "happy-hour" | "loyalty" | "promo-code";
-    discountType?: "percentage" | "fixed";
-    discountValue?: number;
+    strategy: string;
+    promoCode?: string;
 };
 
 export class PricingController {
@@ -46,32 +41,10 @@ export class PricingController {
             pizzas.reduce((sum, pizza) => sum + pizza.totalPrice, 0) * 100,
         ) / 100;
 
-        let strategy: PricingStrategy;
-
-        switch (request.strategy) {
-            case "standard":
-                strategy = new StandardPricing();
-                break;
-            case "happy-hour":
-                strategy = new HappyHourPricing();
-                break;
-            case "loyalty":
-                strategy = new LoyaltyPricing();
-                break;
-            case "promo-code":
-                if (
-                    request.discountType === undefined ||
-                    request.discountValue === undefined
-                ) {
-                    throw new Error("Promo code discount details are required");
-                }
-
-                strategy = new PromoCodePricing(
-                    request.discountType,
-                    request.discountValue,
-                );
-                break;
-        }
+        // us 2 : la stratégie est choisie dynamiquement via le registry, sans switch
+        const strategy = PricingStrategyRegistry.create(request.strategy, {
+            promoCode: request.promoCode,
+        });
 
         const { discount, finalPrice } =
             this.pricingService.calculatePrice(total, strategy);

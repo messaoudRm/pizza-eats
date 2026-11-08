@@ -1,17 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { PricingService } from "../../application/services/PricingService";
-import { PricingController } from "../controllers/PricingController";
-
-type PricingRequest = {
-    brandId: string;
-    pizzas: {
-        pizzaId: string;
-        quantity: number;
-    }[];
-    strategy: "standard" | "happy-hour" | "loyalty" | "promo-code";
-    discountType?: "percentage" | "fixed";
-    discountValue?: number;
-};
+import { PricingController, PricingRequest } from "../controllers/PricingController";
+import { PricingStrategyRegistry } from "../../domain/pricing/PricingStrategyRegistry";
 
 export async function pricingRoutes(app: FastifyInstance) {
     const pricingService = new PricingService();
@@ -42,15 +32,12 @@ export async function pricingRoutes(app: FastifyInstance) {
                         },
                         strategy: {
                             type: "string",
-                            enum: ["standard", "happy-hour", "loyalty", "promo-code"],
+                            // us 2 : la liste vient du registry, rien à modifier ici pour une nouvelle stratégie
+                            enum: PricingStrategyRegistry.getAll(),
                         },
-                        discountType: {
+                        promoCode: {
                             type: "string",
-                            enum: ["percentage", "fixed"],
-                        },
-                        discountValue: {
-                            type: "number",
-                            minimum: 0,
+                            description: "Code promo (obligatoire si strategy = promo-code)",
                         },
                     },
                 },

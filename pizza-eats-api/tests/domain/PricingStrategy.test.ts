@@ -2,7 +2,9 @@ import { describe, it, expect } from "vitest";
 import { PricingController } from "../../src/presentation/controllers/PricingController";
 import { PricingService } from "../../src/application/services/PricingService";
 import "../../src/domain/brands/registerBrands";
+import "../../src/domain/pricing/registerPricingStrategies";
 import {PromoCodePricing} from "../../src/domain/pricing/strategies/PromoCodePricing";
+import { PricingStrategyRegistry } from "../../src/domain/pricing/PricingStrategyRegistry";
 
 // us7 Tests sur les stratégies de prix
 describe("PricingController", () => {
@@ -65,8 +67,7 @@ describe("PricingController", () => {
             brandId: "da-michele",
             pizzas: [{ pizzaId: "dm-1", quantity: 2 }],
             strategy: "promo-code",
-            discountType: "fixed",
-            discountValue: 5,
+            promoCode: "WELCOME5",
         });
 
         expect(result.total).toBe(20);
@@ -120,5 +121,67 @@ describe("PricingController", () => {
             discount: 2,
         });
         expect(result.finalPrice).toBe(18);
+    });
+
+    it("should apply a percentage promo code discount", () => {
+        const result = controller.calculatePrice({
+            brandId: "da-michele",
+            pizzas: [{ pizzaId: "dm-1", quantity: 2 }],
+            strategy: "promo-code",
+            promoCode: "pizza10",
+        });
+
+        expect(result.promotion).toEqual({
+            strategy: "promo-code",
+            discount: 2,
+        });
+        expect(result.finalPrice).toBe(18);
+    });
+
+    it("should reject an unknown promo code", () => {
+        expect(() =>
+            controller.calculatePrice({
+                brandId: "da-michele",
+                pizzas: [{ pizzaId: "dm-1", quantity: 2 }],
+                strategy: "promo-code",
+                promoCode: "FREEPIZZA",
+            }),
+        ).toThrow('Code promo "FREEPIZZA" invalide');
+    });
+
+    it("should reject a promo-code strategy without a code", () => {
+        expect(() =>
+            controller.calculatePrice({
+                brandId: "da-michele",
+                pizzas: [{ pizzaId: "dm-1", quantity: 2 }],
+                strategy: "promo-code",
+            }),
+        ).toThrow("Le code promo est obligatoire");
+    });
+
+    it("should reject an unknown strategy", () => {
+        expect(() =>
+            controller.calculatePrice({
+                brandId: "da-michele",
+                pizzas: [{ pizzaId: "dm-1", quantity: 1 }],
+                strategy: "unknown",
+            }),
+        ).toThrow('Stratégie de prix "unknown" inconnue');
+    });
+
+    it("should use a newly registered strategy without changing the controller", () => {
+        // us 2 : facile d'ajouter une nouvelle stratégie
+        PricingStrategyRegistry.register("student", () => ({
+            calculatePrice: (basePrice: number) => basePrice * 0.85,
+        }));
+
+        const result = controller.calculatePrice({
+            brandId: "da-michele",
+            pizzas: [{ pizzaId: "dm-1", quantity: 2 }],
+            strategy: "student",
+        });
+
+        expect(result.finalPrice).toBe(17);
+        expect(result.promotion).toEqual({ strategy: "student", discount: 3 });
     });
 });

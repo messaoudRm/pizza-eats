@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
 import "./domain/brands/registerBrands";
+import "./domain/pricing/registerPricingStrategies";
 import { InMemoryOrderRepository } from "./infrastructure/repositories/InMemoryOrderRepository";
 
 import { healthRoutes } from "./presentation/routes/health.routes";
