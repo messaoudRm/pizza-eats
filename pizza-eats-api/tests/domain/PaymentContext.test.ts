@@ -1,9 +1,12 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { PaymentContext } from "../../src/domain/payment/PaymentContext";
-import { CreditCardAdapter } from "../../src/domain/payment/adapters/CreditCardAdapter";
-import { CashOnDeliveryAdapter } from "../../src/domain/payment/adapters/CashOnDeliveryAdapter";
-import { PayPalAdapter } from "../../src/domain/payment/adapters/PayPalAdapter";
+import { CreditCardAdapter } from "../../src/infrastructure/payment/adapters/CreditCardAdapter";
+import { CashOnDeliveryAdapter } from "../../src/infrastructure/payment/adapters/CashOnDeliveryAdapter";
+import { PayPalAdapter } from "../../src/infrastructure/payment/adapters/PayPalAdapter";
 import { PaymentService } from "../../src/application/services/PaymentService";
+import { CardPaymentGateway } from "../../src/infrastructure/payment/providers/CardPaymentGateway";
+import { PayPalClient } from "../../src/infrastructure/payment/providers/PayPalClient";
+import { CashRegister } from "../../src/infrastructure/payment/providers/CashRegister";
 
 describe("PaymentContext", () => {
   afterEach(() => {
@@ -17,7 +20,7 @@ describe("PaymentContext", () => {
     context.pay(25);
 
     expect(consoleSpy).toHaveBeenCalledWith(
-      "[Carte bancaire] Paiement de 25 € par carte bancaire",
+      "[Carte bancaire] Débit de 2500 centimes (EUR)",
     );
   });
 
@@ -55,7 +58,7 @@ describe("PaymentContext", () => {
     expect(consoleSpy).toHaveBeenCalledTimes(2);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "[Carte bancaire] Paiement de 25 € par carte bancaire",
+      "[Carte bancaire] Débit de 2500 centimes (EUR)",
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       2,
@@ -80,7 +83,7 @@ describe("PaymentContext", () => {
     expect(consoleSpy).toHaveBeenCalledTimes(2);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "[Carte bancaire] Paiement de 25 € par carte bancaire",
+      "[Carte bancaire] Débit de 2500 centimes (EUR)",
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       2,
@@ -101,7 +104,7 @@ describe("PaymentContext", () => {
       "[PaymentService] Nombre tiré : 2",
     );
     expect(consoleSpy).toHaveBeenCalledWith(
-      "[Carte bancaire] Paiement de 25 € par carte bancaire",
+      "[Carte bancaire] Débit de 2500 centimes (EUR)",
     );
   });
 
@@ -133,5 +136,41 @@ describe("PaymentContext", () => {
     expect(consoleSpy).toHaveBeenCalledWith(
       "[Espèces à la réception] Paiement de 25 EUR à la livraison",
     );
+  });
+
+  // us 4 : chaque adapter traduit pay(amount) vers la signature propre à son service externe
+  describe("Adapters", () => {
+    it("CreditCardAdapter should call CardPaymentGateway.charge in cents", () => {
+      const gateway = new CardPaymentGateway();
+      const chargeSpy = vi.spyOn(gateway, "charge").mockImplementation(() => {});
+
+      new CreditCardAdapter(gateway).pay(25.5);
+
+      expect(chargeSpy).toHaveBeenCalledWith(2550, "EUR");
+    });
+
+    it("PayPalAdapter should call PayPalClient.sendPayment with a payment object", () => {
+      const client = new PayPalClient();
+      const sendSpy = vi.spyOn(client, "sendPayment").mockImplementation(() => {});
+
+      new PayPalAdapter(client).pay(25);
+
+      expect(sendSpy).toHaveBeenCalledWith({
+        total: 25,
+        currency: "EUR",
+        merchant: "Pizza Eats",
+      });
+    });
+
+    it("CashOnDeliveryAdapter should call CashRegister.registerCashOnDelivery", () => {
+      const register = new CashRegister();
+      const registerSpy = vi
+        .spyOn(register, "registerCashOnDelivery")
+        .mockImplementation(() => {});
+
+      new CashOnDeliveryAdapter(register).pay(25);
+
+      expect(registerSpy).toHaveBeenCalledWith("EUR", 25);
+    });
   });
 });

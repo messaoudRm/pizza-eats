@@ -1,9 +1,9 @@
 
 import { PaymentContext } from "../../domain/payment/PaymentContext";
 import { PaymentMethod } from "../../domain/payment/PaymentMethod";
-import { CreditCardAdapter } from "../../domain/payment/adapters/CreditCardAdapter";
-import { CashOnDeliveryAdapter } from "../../domain/payment/adapters/CashOnDeliveryAdapter";
-import { PayPalAdapter } from "../../domain/payment/adapters/PayPalAdapter";
+import { CreditCardAdapter } from "../../infrastructure/payment/adapters/CreditCardAdapter";
+import { CashOnDeliveryAdapter } from "../../infrastructure/payment/adapters/CashOnDeliveryAdapter";
+import { PayPalAdapter } from "../../infrastructure/payment/adapters/PayPalAdapter";
 
 export class PaymentService {
   private readonly paymentMethods: Record<string, PaymentMethod> = {
