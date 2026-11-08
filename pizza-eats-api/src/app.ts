@@ -10,6 +10,7 @@ import { orderRoutes } from "./presentation/routes/order.routes";
 import { paymentRoutes } from "./presentation/routes/payment.routes";
 import { orderNotificationRoutes } from "./presentation/routes/order-notification.routes";
 import { cartRoutes } from "./presentation/routes/cart.routes";
+import { customPizzaRoutes } from "./presentation/routes/custom-pizza.routes";
 
 export async function buildApp() {
     const app = Fastify({
@@ -40,6 +41,7 @@ export async function buildApp() {
     await app.register(paymentRoutes);
     await app.register(orderNotificationRoutes);
     await app.register(cartRoutes);
+    await app.register(customPizzaRoutes);
 
     return app;
 }

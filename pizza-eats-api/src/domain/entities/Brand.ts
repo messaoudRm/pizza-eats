@@ -9,6 +9,13 @@ export type OpeningHours = {
     [day: number]: OpeningInterval[];
 };
 
+export type SizeMultipliers = {
+    S: number;
+    M: number;
+    L: number;
+    XL: number;
+};
+
 
 export abstract class Brand {
   constructor(
@@ -32,5 +39,16 @@ export abstract class Brand {
   getPizzaById(pizzaId: string): Pizza | undefined {
       return this.menu.find((pizza) => pizza.id === pizzaId);
   }
+
+    getSizeMultiplier(size: "S" | "M" | "L" | "XL"): number {
+        const multipliers: SizeMultipliers = {
+            S: 0.8,
+            M: 1,
+            L: 1.2,
+            XL: 1.5,
+        };
+
+        return multipliers[size];
+    }
 
 }
